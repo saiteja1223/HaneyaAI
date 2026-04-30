@@ -7,7 +7,8 @@ export default function ApiKeyModal() {
   const [input, setInput] = useState(apiKey);
   const [error, setError] = useState('');
   useEffect(() => {
-  setApiKey("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");
+    setApiKey("dummy")
+  // setApiKey("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");
      }, []);
   // if (!showApiKeyModal) return null;
   if (true) return null;
