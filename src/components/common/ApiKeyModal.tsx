@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState,useEffect } from 'react';
 import { X, Shield, AlertTriangle } from 'lucide-react';
 import { useStore } from '../../store/useStore';
 
@@ -6,25 +6,29 @@ export default function ApiKeyModal() {
   const { showApiKeyModal, setShowApiKeyModal, setApiKey, apiKey } = useStore();
   const [input, setInput] = useState(apiKey);
   const [error, setError] = useState('');
+  useEffect(() => {
+  setApiKey("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");
+     }, []);
+  // if (!showApiKeyModal) return null;
+  if (true) return null;
 
-  if (!showApiKeyModal) return null;
-
-  const handleSave = () => {
-    const trimmed = input.trim();
-    if (!trimmed.startsWith('sk-')) {
-      setError('API key must start with "sk-"');
-      return;
-    }
-    if (trimmed.length < 20) {
-      setError('API key appears too short');
-      return;
-    }
-    setError('');
-    setApiKey(trimmed);
-  };
+  // const handleSave = () => {
+  //   // const trimmed = input.trim();
+  //   // if (!trimmed.startsWith('sk-')) {
+  //   //   setError('API key must start with "sk-"');
+  //   //   return;
+  //   // }
+  //   // if (trimmed.length < 20) {
+  //   //   setError('API key appears too short');
+  //   //   return;
+  //   // }
+  //   // setError('');
+  //   setApiKey("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");
+  // };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+    <>
+   {apiKey && <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
       <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-md mx-4 overflow-hidden">
         <div className="flex items-center justify-between p-5 border-b border-gray-200 dark:border-gray-700">
           <h2 className="text-lg font-semibold text-gray-900 dark:text-white">OpenAI API Key</h2>
@@ -64,13 +68,13 @@ export default function ApiKeyModal() {
           </div>
 
           <button
-            onClick={handleSave}
+          
             className="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-medium rounded-lg transition-colors text-sm"
           >
             Save Key
           </button>
         </div>
       </div>
-    </div>
+    </div>} </>
   );
 }

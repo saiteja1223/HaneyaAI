@@ -24,7 +24,7 @@ export default function Header() {
       </div>
 
       <div className="flex items-center gap-3">
-        <button
+        {/* <button
           onClick={() => setShowApiKeyModal(true)}
           className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
             apiKey
@@ -34,7 +34,7 @@ export default function Header() {
         >
           <Key className="w-3.5 h-3.5" />
           {apiKey ? 'API Key Set' : 'Set API Key'}
-        </button>
+        </button> */}
 
         <button
           onClick={toggleDarkMode}
