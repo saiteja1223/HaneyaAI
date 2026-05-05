@@ -7,7 +7,7 @@ export default function ApiKeyModal() {
   const [input, setInput] = useState(apiKey);
   const [error, setError] = useState('');
   useEffect(() => {
-    setApiKey("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")
+    setApiKey("modify")
   
      }, []);
   // if (!showApiKeyModal) return null;
