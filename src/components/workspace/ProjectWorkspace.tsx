@@ -54,39 +54,55 @@ export default function ProjectWorkspace() {
     }, 2500);
      debugger
    try {
-  const response = await axios.post(
-    'https://api.openai.com/v1/chat/completions',
-    {
-      model: 'gpt-4o-mini', // ✅ safer than gpt-3.5-turbo
-      messages: [
-        { role: 'system', content: SPEC_SYSTEM_PROMPT },
-        {
-          role: 'user',
-          content: `Generate a detailed Functional Specification (FS) and Technical Specification (TS) for the following SAP requirement:\n\n${requirement}`,
-        },
-      ],
-      temperature: 0.7,
-      max_tokens: 2000,
-    },
-    {
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${apiKey.trim()}`,
-      },
-    }
-  );
+//  const response = await axios.post(
+//   'https://api.anthropic.com/v1/messages',
+//   {
+//     model: 'claude-3-haiku-20240307',
+//     max_tokens: 2000,
+//     temperature: 0.7,
+//     messages: [
+//       {
+//         role: 'user',
+//         content: `Generate a detailed Functional Specification (FS) and Technical Specification (TS) for the following SAP requirement:\n\n${requirement}`,
+//       },
+//     ],
+//     system: SPEC_SYSTEM_PROMPT
+//   },
+//   {
+//     headers: {
+//       'Content-Type': 'application/json',
+//       'x-api-key': apiKey.trim(),
+//       'anthropic-version': '2023-06-01'
+//     },
+//   }
+// );
+
+// const result = response.data.content[0].text;
+// console.log(result);
+const response =await axios.post('https://haneyaai.onrender.com/chat', {
+  requirement,
+  // systemPrompt: SPEC_SYSTEM_PROMPT
+});
+// const result = response.data.content[0].text;
+  const result = response.data;
+console.log("Result",result);
 
   // ✅ Extract exactly like your callOpenAI function
-  const result = response.data?.choices?.[0]?.message?.content || '';
+  
 
   progress.complete();
 
       // Parse FS and TS from the response
-      const fsMatch = result.match(/# FUNCTIONAL SPECIFICATION([\s\S]*?)# TECHNICAL SPECIFICATION/);
-      const tsMatch = result.match(/# TECHNICAL SPECIFICATION([\s\S]*)/);
+      // const fsMatch = result.match(/# functionalSpec([\s\S]*?)# technicalSpec/);
+      // const tsMatch = result.match(/# technicalSpec([\s\S]*)/);
 
-      const fs = fsMatch ? fsMatch[1].trim() : result;
-      const ts = tsMatch ? tsMatch[1].trim() : '';
+      // const fs = fsMatch ? fsMatch[1].trim() : result;
+      // const ts = tsMatch ? tsMatch[1].trim() : '';
+      const fs = result.functionalSpec || '';
+      const ts = result.technicalSpec || '';
+
+console.log("FS:", fs);
+console.log("TS:", ts);
 
       updateProject(project.id, { functionalSpec: fs, technicalSpec: ts, approved: false, abapCode: '' });
       addVersion(project.id, 'fs', fs);
@@ -161,12 +177,20 @@ export default function ProjectWorkspace() {
     }, 2500);
 
     try {
-      const combined = `FUNCTIONAL SPECIFICATION:\n${project.functionalSpec}\n\nTECHNICAL SPECIFICATION:\n${project.technicalSpec}`;
-      const result = await callOpenAI(
-        apiKey,
-        ABAP_SYSTEM_PROMPT,
-        `Generate clean, optimized, production-ready ABAP code based on the following FS and TS:\n\n${combined}`,
-      );
+      // const combined = `FUNCTIONAL SPECIFICATION:\n${project.functionalSpec}\n\nTECHNICAL SPECIFICATION:\n${project.technicalSpec}`;
+      // const result = await callOpenAI(
+      //   apiKey,
+      //   ABAP_SYSTEM_PROMPT,
+      //   `Generate clean, optimized, production-ready ABAP code based on the following FS and TS:\n\n${combined}`,
+      // );
+       const response = await axios.post(
+             "https://haneyaai.onrender.com/generate-abap",
+              {
+                functionalSpec: project.functionalSpec,
+                technicalSpec: project.technicalSpec
+              }
+            );
+             const result = response.data.abapCode;
 
       progress.complete();
       updateProject(project.id, { abapCode: result });
