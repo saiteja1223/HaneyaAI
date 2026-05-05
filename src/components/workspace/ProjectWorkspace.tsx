@@ -80,7 +80,7 @@ export default function ProjectWorkspace() {
 // const result = response.data.content[0].text;
 // console.log(result);
 const response =await axios.post('https://haneyaai.onrender.com/chat', {
-  requirement,
+  message: requirement
   // systemPrompt: SPEC_SYSTEM_PROMPT
 });
 // const result = response.data.content[0].text;
