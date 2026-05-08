@@ -9,6 +9,9 @@ import SkeletonLoader from '../common/SkeletonLoader';
 import VersionHistory from '../common/VersionHistory';
 import AbapEditor from './AbapEditor';
 import axios from 'axios';
+import * as pdfjsLib from "pdfjs-dist";
+import pdfWorker from "pdfjs-dist/build/pdf.worker?url";
+pdfjsLib.GlobalWorkerOptions.workerSrc = pdfWorker;
 export default function ProjectWorkspace() {
   const {
     activeProjectId, projects, apiKey, setShowApiKeyModal,
@@ -20,6 +23,8 @@ export default function ProjectWorkspace() {
   const [requirement, setRequirement] = useState(project?.requirement || '');
   const [editingFs, setEditingFs] = useState(false);
   const [editingTs, setEditingTs] = useState(false);
+
+
   const [editFsContent, setEditFsContent] = useState('');
   const [editTsContent, setEditTsContent] = useState('');
 
@@ -32,6 +37,7 @@ export default function ProjectWorkspace() {
   }
 
   const syncRequirement = (val: string) => {
+    debugger
     setRequirement(val);
     updateProject(project.id, { requirement: val });
   };
@@ -229,6 +235,75 @@ console.log("TS:", ts);
     a.click();
     URL.revokeObjectURL(url);
   };
+ 
+//  const handleFileUpload = async (
+//     e: React.ChangeEvent<HTMLInputElement>
+//   ) => {
+//     debugger
+//     const file = e.target.files?.[0];
+//     if (!file) return;
+
+  
+
+//     try {
+//       const arrayBuffer = await file.arrayBuffer();
+//       const typedArray = new Uint8Array(arrayBuffer);
+
+//       const pdf = await pdfjsLib.getDocument(typedArray).promise;
+
+//       let fullText = "";
+
+//       for (let i = 1; i <= pdf.numPages; i++) {
+//         const page = await pdf.getPage(i);
+//         const content = await page.getTextContent();
+
+//         const strings = content.items
+//           .map((item: any) => ("str" in item ? item.str : ""))
+//           .filter(Boolean);
+
+//         fullText += strings.join(" ") + "\n";
+//       }
+
+//       // ✅ Put PDF text into textarea state
+//       setRequirement(fullText);
+//        setIsGenerating(true)
+//     } catch (error) {
+//       console.error("Error reading PDF:", error);
+//     }  
+//   };
+const handleFileUpload = async (event: any) => {
+  debugger
+  const file = event.target.files[0];
+
+  if (!file) return;
+
+  const reader = new FileReader();
+
+  reader.onload = async (e: any) => {
+    const typedArray = new Uint8Array(e.target.result);
+
+    const pdf = await pdfjsLib.getDocument(typedArray).promise;
+
+    let fullText = "";
+
+    for (let i = 1; i <= pdf.numPages; i++) {
+      const page = await pdf.getPage(i);
+
+      const content = await page.getTextContent();
+
+      const strings = content.items.map((item: any) => item.str);
+
+      fullText += strings.join(" ");
+    }
+
+    console.log(fullText);
+    syncRequirement(fullText);
+
+    
+  };
+
+  reader.readAsArrayBuffer(file);
+};
 
   const hasSpecs = !!project.functionalSpec;
   const hasAbap = !!project.abapCode;
@@ -249,10 +324,20 @@ console.log("TS:", ts);
             placeholder="Enter your SAP requirement...&#10;&#10;Example: Create a custom report to display purchase orders with vendor details, filtered by date range and plant. Include ALV grid display with drill-down to ME23N."
             className="flex-1 min-h-[200px] w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-xl bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none resize-none text-sm leading-relaxed transition-all"
           />
+           <input
+  type="file"
+  accept="application/pdf"
+  onChange={handleFileUpload}
+  className="border border-gray-300 rounded-lg p-2 cursor-pointer 
+             file:bg-blue-500 file:text-white file:border-0 
+             file:px-4 file:py-2 file:rounded-md 
+             file:mr-4 hover:file:bg-blue-600"
+/>
+      
 
           <button
             onClick={handleGenerateSpecs}
-            disabled={isGenerating || !requirement.trim()}
+            disabled={isGenerating  || !requirement.trim()}
             className="w-full flex items-center justify-center gap-2 py-3 bg-emerald-600 hover:bg-emerald-700 disabled:bg-gray-300 dark:disabled:bg-gray-700 disabled:cursor-not-allowed text-white font-semibold rounded-xl transition-all text-sm shadow-sm hover:shadow-md"
           >
             <Sparkles className="w-4 h-4" />
