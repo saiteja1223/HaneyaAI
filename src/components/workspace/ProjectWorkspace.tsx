@@ -27,6 +27,7 @@ export default function ProjectWorkspace() {
         ts: "Source Code Context...",
         fs: "Field Definitions..."
     });
+    const[pass,setPass]=useState("");
 
   const [editFsContent, setEditFsContent] = useState('');
   const [editTsContent, setEditTsContent] = useState('');
@@ -114,6 +115,7 @@ console.log("FS:", fs);
 console.log("TS:", ts);
     
     setDataToLink({ts:ts,fs:fs})
+    setPass(ts)
 
       updateProject(project.id, { functionalSpec: fs, technicalSpec: ts, approved: false, abapCode: '' });
       addVersion(project.id, 'fs', fs);
@@ -320,10 +322,15 @@ const handleSendToCopilot = async() => {
         // } else {
         //     alert("Eclipse bridge not detected. Are you running this inside the Eclipse Plugin?");
         // }
+        debugger
+        try{
         const response =await axios.post('http://127.0.0.1:5000/api/mcp/generate-abap', {
-        technical_spec: dataToLink
+        technical_spec: pass
   // systemPrompt: SPEC_SYSTEM_PROMPT
-          });
+          });}
+          catch(e){
+            console.log("error",e)
+          }
     };
 
   const hasSpecs = !!project.functionalSpec;
@@ -364,7 +371,7 @@ const handleSendToCopilot = async() => {
             <Sparkles className="w-4 h-4" />
             Generate Specs
           </button>
-           <button onClick={()=>handleSendToCopilot()}>send to Copiolet</button>
+           <button onClick={()=>handleSendToCopilot()}>Send to Copilot</button>
 
           {isGenerating && (
             <div className="pt-2">
