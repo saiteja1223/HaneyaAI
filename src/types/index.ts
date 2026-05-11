@@ -34,3 +34,9 @@ export type GenerationStage =
 export type OutputTab = 'fs' | 'ts' | 'abap';
 
 export type AppView = 'dashboard' | 'workspace';
+declare global {
+  interface Window {
+    /** Bridge injected by Haneya Eclipse Plugin */
+    sendToCopilotJava: (content: string) => void;
+  }
+}

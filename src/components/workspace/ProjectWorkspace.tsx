@@ -23,7 +23,10 @@ export default function ProjectWorkspace() {
   const [requirement, setRequirement] = useState(project?.requirement || '');
   const [editingFs, setEditingFs] = useState(false);
   const [editingTs, setEditingTs] = useState(false);
-
+  const [dataToLink, setDataToLink] = useState({
+        ts: "Source Code Context...",
+        fs: "Field Definitions..."
+    });
 
   const [editFsContent, setEditFsContent] = useState('');
   const [editTsContent, setEditTsContent] = useState('');
@@ -109,6 +112,8 @@ console.log("Result",result);
 
 console.log("FS:", fs);
 console.log("TS:", ts);
+    
+    setDataToLink({ts:ts,fs:fs})
 
       updateProject(project.id, { functionalSpec: fs, technicalSpec: ts, approved: false, abapCode: '' });
       addVersion(project.id, 'fs', fs);
@@ -304,6 +309,22 @@ const handleFileUpload = async (event: any) => {
 
   reader.readAsArrayBuffer(file);
 };
+const handleSendToCopilot = async() => {
+        // // Prepare the text you want to paste
+        // const fullPrompt = `Please analyze these fields (FS) and source (TS): \n\n ${dataToLink.fs} \n\n ${dataToLink.ts}`;
+
+        // // Check if we are running inside the Eclipse Browser widget
+        // if (window.sendToCopilotJava) {
+   
+        //     window.sendToCopilotJava(fullPrompt);
+        // } else {
+        //     alert("Eclipse bridge not detected. Are you running this inside the Eclipse Plugin?");
+        // }
+        const response =await axios.post('http://127.0.0.1:5000/api/mcp/generate-abap', {
+        technical_spec: dataToLink
+  // systemPrompt: SPEC_SYSTEM_PROMPT
+          });
+    };
 
   const hasSpecs = !!project.functionalSpec;
   const hasAbap = !!project.abapCode;
@@ -343,6 +364,7 @@ const handleFileUpload = async (event: any) => {
             <Sparkles className="w-4 h-4" />
             Generate Specs
           </button>
+           <button onClick={()=>handleSendToCopilot()}>send to Copiolet</button>
 
           {isGenerating && (
             <div className="pt-2">
